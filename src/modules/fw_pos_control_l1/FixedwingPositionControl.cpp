@@ -1833,7 +1833,6 @@ FixedwingPositionControl::control_auto_landing_straight(const hrt_abstime &now, 
 
 		/* set the attitude and throttle commands */
 
-		// TECS has authority (though constrained) over pitch during flare, throttle is killed
 		_att_sp.pitch_body = get_tecs_pitch();
 
 		// yaw is not controlled in nominal flight
@@ -1882,7 +1881,7 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 	_tecs.set_altitude_error_time_constant(_param_fw_thrtc_sc.get() * _param_fw_t_h_error_tc.get());
 
 	const Vector2f local_position{_local_pos.x, _local_pos.y};
-	Vector2f local_land_point = _global_local_proj_ref.project(pos_sp_curr.lat, pos_sp_curr.lon);
+	Vector2f local_landing_orbit_center = _global_local_proj_ref.project(pos_sp_curr.lat, pos_sp_curr.lon);
 
 	if (_time_started_landing == 0) {
 		// save time at which we started landing and reset landing abort status
@@ -1934,14 +1933,15 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 			_npfg.setAirspeedNom(target_airspeed * _eas2tas);
 			_npfg.setAirspeedMax(_param_fw_airspd_max.get() * _eas2tas);
 
-			_npfg.navigateLoiter(local_land_point, local_position, loiter_radius, pos_sp_curr.loiter_direction_counter_clockwise,
+			_npfg.navigateLoiter(local_landing_orbit_center, local_position, loiter_radius,
+					     pos_sp_curr.loiter_direction_counter_clockwise,
 					     get_nav_speed_2d(ground_speed), _wind_vel);
 			target_airspeed = _npfg.getAirspeedRef() / _eas2tas;
 			_att_sp.roll_body = _npfg.getRollSetpoint();
 
 		} else {
 
-			_l1_control.navigate_loiter(local_land_point, local_position, loiter_radius,
+			_l1_control.navigate_loiter(local_landing_orbit_center, local_position, loiter_radius,
 						    pos_sp_curr.loiter_direction_counter_clockwise, get_nav_speed_2d(ground_speed));
 			_att_sp.roll_body = _l1_control.get_roll_setpoint();
 		}
@@ -2020,14 +2020,15 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 			_npfg.setAirspeedNom(target_airspeed * _eas2tas);
 			_npfg.setAirspeedMax(_param_fw_airspd_max.get() * _eas2tas);
 
-			_npfg.navigateLoiter(local_land_point, local_position, loiter_radius, pos_sp_curr.loiter_direction_counter_clockwise,
+			_npfg.navigateLoiter(local_landing_orbit_center, local_position, loiter_radius,
+					     pos_sp_curr.loiter_direction_counter_clockwise,
 					     get_nav_speed_2d(ground_speed), _wind_vel);
 			target_airspeed = _npfg.getAirspeedRef() / _eas2tas;
 			_att_sp.roll_body = _npfg.getRollSetpoint();
 
 		} else {
 
-			_l1_control.navigate_loiter(local_land_point, local_position, loiter_radius,
+			_l1_control.navigate_loiter(local_landing_orbit_center, local_position, loiter_radius,
 						    pos_sp_curr.loiter_direction_counter_clockwise, get_nav_speed_2d(ground_speed));
 			_att_sp.roll_body = _l1_control.get_roll_setpoint();
 		}
@@ -2054,7 +2055,6 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 
 		/* set the attitude and throttle commands */
 
-		// TECS has authority (though constrained) over pitch during flare, throttle is killed
 		_att_sp.pitch_body = get_tecs_pitch();
 
 		// yaw is not controlled in nominal flight

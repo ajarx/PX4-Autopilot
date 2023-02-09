@@ -619,8 +619,7 @@ private:
 	/**
 	 * @brief Controls automatic landing with circular final appraoch.
 	 *
-	 * To be used outside of Mission landings. Vehicle will loiter down in circles at set position setpoint untit it starts
-	 * flaring.
+	 * To be used outside of Mission landings. Vehicle will orbit down around the landing position setpoint until flaring.
 	 *
 	 * @param now Current system time [us]
 	 * @param control_interval Time since last position control call [s]
