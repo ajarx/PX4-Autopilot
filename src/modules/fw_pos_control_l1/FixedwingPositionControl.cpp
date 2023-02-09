@@ -1679,7 +1679,7 @@ FixedwingPositionControl::control_auto_landing_straight(const hrt_abstime &now, 
 		}
 
 		// ramp in flare limits and setpoints with the flare time, command a soft touchdown
-		const float seconds_since_flare_start = hrt_elapsed_time(&_flare_states.start_time) / float(1_s);
+		const float seconds_since_flare_start = hrt_elapsed_time(&_flare_states.start_time) * 1.e-6f;
 		const float flare_ramp_interpolator = math::constrain(seconds_since_flare_start / _param_fw_lnd_fl_time.get(), 0.0f,
 						      1.0f);
 
@@ -1916,7 +1916,7 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 		}
 
 		// ramp in flare limits and setpoints with the flare time, command a soft touchdown
-		const float seconds_since_flare_start = hrt_elapsed_time(&_flare_states.start_time) / float(1_s);
+		const float seconds_since_flare_start = hrt_elapsed_time(&_flare_states.start_time) * 1.e-6f;
 		const float flare_ramp_interpolator = math::constrain(seconds_since_flare_start / _param_fw_lnd_fl_time.get(), 0.0f,
 						      1.0f);
 
