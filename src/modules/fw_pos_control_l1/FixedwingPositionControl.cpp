@@ -2037,8 +2037,9 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 		// open the desired max sink rate to encompass the glide slope if within the aircraft's performance limits
 		// x/sqrt(x^2+1) = sin(arctan(x))
 		const float glide_slope = math::radians(_param_fw_lnd_ang.get());
-		const float desired_sinkrate = -airspeed_land * glide_slope / sqrtf(glide_slope * glide_slope + 1.0f);
-
+		const float glide_slope_sink_rate = airspeed_land * glide_slope / sqrtf(glide_slope * glide_slope + 1.0f);
+		const float desired_max_sinkrate = math::min(math::max(glide_slope_sink_rate, _param_sinkrate_target.get()),
+						   _param_fw_t_sink_max.get());
 		tecs_update_pitch_throttle(control_interval,
 					   _current_altitude, // is not controlled, control descend rate
 					   target_airspeed,
@@ -2046,10 +2047,10 @@ FixedwingPositionControl::control_auto_landing_circular(const hrt_abstime &now, 
 					   radians(_param_fw_p_lim_max.get()),
 					   _param_fw_thr_min.get(),
 					   _param_fw_thr_max.get(),
-					   _param_sinkrate_target.get(), // use desired default sinkrate as max here
+					   desired_max_sinkrate,
 					   _param_climbrate_target.get(),
 					   false,
-					   desired_sinkrate);
+					   -glide_slope_sink_rate); // heightrate = -sinkrate
 
 		/* set the attitude and throttle commands */
 
